@@ -78,19 +78,7 @@ def generate_sql_from_nl(nl: str, timeout: int = 15, max_tokens: int = 1024, str
                     logger.debug("Imported ..db.metadata.get_current_db_schema successfully (relative)")
                 except Exception as e2:
                     logger.debug("Relative import ..db.metadata.get_current_db_schema failed: %s", e2)
-                    try:
-                        logger.debug("Attempting absolute import db.utils.get_current_db_schema as fallback")
-                        from db.utils import get_current_db_schema  # type: ignore
-                        logger.debug("Imported db.utils.get_current_db_schema successfully (absolute)")
-                    except Exception as e3:
-                        logger.debug("Absolute import db.utils.get_current_db_schema failed: %s", e3)
-                        try:
-                            logger.debug("Attempting package-relative import ..db.utils.get_current_db_schema as last fallback")
-                            from ..db.utils import get_current_db_schema  # type: ignore
-                            logger.debug("Imported ..db.utils.get_current_db_schema successfully (relative)")
-                        except Exception as e4:
-                            logger.debug("Fallback import db.utils.get_current_db_schema failed: %s", e4)
-                            get_current_db_schema = None  # type: ignore
+                    get_current_db_schema = None  # type: ignore
 
             if not callable(get_current_db_schema):
                 logger.debug("get_current_db_schema not available or not callable; skipping schema inclusion")
