@@ -32,13 +32,18 @@ binaries = pyqt_binaries
 # Analysis - root entry point is src/app.py
 a = Analysis(
     ['src/app.py'],
-    pathex=[os.path.abspath('.')],
+    # Include the src directory in pathex so packages under src (e.g., db, ui, editor)
+    # are discovered and collected by PyInstaller. Keep project root as well.
+    pathex=[os.path.abspath('src'), os.path.abspath('.')],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     runtime_hooks=[],
-    excludes=[],
+    # Exclude alternate Qt bindings to avoid PyInstaller attempting to collect both PyQt5 and PyQt6
+    excludes=[
+        'PyQt5', 'PyQt5.sip', 'PyQtWebEngine', 'PySide2', 'PySide6', 'PySide', 'PySide.QtCore'
+    ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=None,

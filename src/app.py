@@ -1,6 +1,20 @@
 from PyQt6.QtWidgets import QApplication
 import sys
 
+# If running from a PyInstaller onefile bundle, ensure the unpacked 'src' folder is on sys.path
+# so imports like 'from db.metadata import ...' that rely on the project 'src' layout succeed.
+try:
+    if getattr(sys, 'frozen', False):
+        meipass = getattr(sys, '_MEIPASS', None)
+        if meipass:
+            import os
+            src_bundle_path = os.path.join(meipass, 'src')
+            if os.path.isdir(src_bundle_path) and src_bundle_path not in sys.path:
+                sys.path.insert(0, src_bundle_path)
+except Exception:
+    # best-effort: do not block startup if this fails
+    pass
+
 from main_window import MainWindow
 
 import logging
