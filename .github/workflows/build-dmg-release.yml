@@ -31,14 +31,7 @@ jobs:
 
       - name: Build with PyInstaller (onedir then onefile)
         run: |
-          # Hidden imports commonly required for SQLAlchemy dialects and DB drivers
-          HIDDEN="--hidden-import=psycopg2 --hidden-import=psycopg2._psycopg --hidden-import=pymysql --hidden-import=mysql.connector --hidden-import=sqlalchemy.dialects.postgresql --hidden-import=sqlalchemy.dialects.mysql --hidden-import=sqlalchemy.dialects.sqlite --hidden-import=importlib.resources --hidden-import=pkg_resources"
-
-          # First build in --onedir for easier debugging of missing data/plugins using the prepared spec
-          pyinstaller CatAIDBViewer.spec
-
-          # Then build the single-file executable for release. Exclude other Qt bindings to avoid hook conflicts
-          pyinstaller --noconfirm --onefile --windowed --name "CatAIDBViewer" $HIDDEN --exclude-module PyQt5 --exclude-module PySide2 --exclude-module PySide6 --add-data "src/ui:ui" src/app.py
+          pyinstaller --exclude-module PyQt5 --noconfirm --onefile --windowed --name "CatAIDBViewer" --add-data "src\\ui;ui" src\app.py 
 
       - name: Create .app bundle
         run: |
