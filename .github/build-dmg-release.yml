@@ -1,0 +1,93 @@
+name: Build DMG and Release (macOS)
+
+on:
+  push:
+    tags:
+      - 'v*'   # 每次推送 tag，比如 v1.0.0，自动发布 Release
+  workflow_dispatch: # 也可以手动触发
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+          brew install create-dmg || true
+
+      - name: Build with PyInstaller
+        run: |
+          # Build a single-file GUI executable and include QSS data so runtime can load it from sys._MEIPASS
+          pyinstaller --noconfirm --onefile --windowed --name "CatAIDBViewer" --add-data "src/ui/ios_style.qss:ui" src/app.py
+
+      - name: Create .app bundle
+        run: |
+          mkdir -p dist/CatAIDBViewer.app/Contents/MacOS
+          mkdir -p dist/CatAIDBViewer.app/Contents/Resources
+          cp "dist/CatAIDBViewer" "dist/CatAIDBViewer.app/Contents/MacOS/"
+          # Create Info.plist
+          cat > dist/CatAIDBViewer.app/Contents/Info.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleExecutable</key>
+              <string>CatAIDBViewer</string>
+              <key>CFBundleIdentifier</key>
+              <string>com.tushuoit.CatAIDBViewer</string>
+              <key>CFBundleName</key>
+              <string>CatAIDBViewer</string>
+              <key>CFBundleVersion</key>
+              <string>1.0</string>
+              <key>CFBundleShortVersionString</key>
+              <string>1.0</string>
+              <key>CFBundleInfoDictionaryVersion</key>
+              <string>6.0</string>
+              <key>CFBundlePackageType</key>
+              <string>APPL</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Create DMG
+        run: |
+          create-dmg \
+            --volname "CatAIDBViewer" \
+            --volicon "" \
+            --window-pos 200 120 \
+            --window-size 600 300 \
+            --icon-size 100 \
+            --icon "CatAIDBViewer.app" 175 120 \
+            --hide-extension "CatAIDBViewer.app" \
+            --app-drop-link 425 120 \
+            "dist/CatAIDBViewer.dmg" \
+            "dist/CatAIDBViewer.app" || true
+
+      - name: List dist directory
+        run: |
+          ls -la dist/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: dist/CatAIDBViewer.dmg
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

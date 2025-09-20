@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+build/
+dist/
+*.spec
+*.egg-info/
+.DS_Store
+*.log
+.idea/
+.vscode/
+__pycache__/
+# PyInstaller
+dist/
+build/
+*.manifest
+*.spec
+# OS Files
+Thumbs.db
+
+# SQLite databases (optional)
+*.db
+*.sqlite
