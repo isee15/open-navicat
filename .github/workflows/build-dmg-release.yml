@@ -29,10 +29,16 @@ jobs:
           pip install pyinstaller
           brew install create-dmg || true
 
-      - name: Build with PyInstaller
+      - name: Build with PyInstaller (onedir then onefile)
         run: |
-          # Build a single-file GUI executable and include QSS data so runtime can load it from sys._MEIPASS
-          pyinstaller --noconfirm --onefile --windowed --name "CatAIDBViewer" --add-data "src/ui/ios_style.qss:ui" src/app.py
+          # Hidden imports commonly required for SQLAlchemy dialects and DB drivers
+          HIDDEN="--hidden-import=psycopg2 --hidden-import=psycopg2._psycopg --hidden-import=pymysql --hidden-import=mysql.connector --hidden-import=sqlalchemy.dialects.postgresql --hidden-import=sqlalchemy.dialects.mysql --hidden-import=sqlalchemy.dialects.sqlite --hidden-import=importlib.resources --hidden-import=pkg_resources"
+
+          # First build in --onedir for easier debugging of missing data/plugins
+          pyinstaller --noconfirm --onedir --windowed --name "CatAIDBViewer" $HIDDEN --add-data "src/ui:ui" src/app.py
+
+          # Then build the single-file executable for release
+          pyinstaller --noconfirm --onefile --windowed --name "CatAIDBViewer" $HIDDEN --add-data "src/ui:ui" src/app.py
 
       - name: Create .app bundle
         run: |
