@@ -31,13 +31,11 @@ jobs:
       - name: Build with PyInstaller (onedir then onefile)
         run: |
           # Hidden imports commonly required for SQLAlchemy dialects and DB drivers
-          set HIDDEN=--hidden-import=psycopg2 --hidden-import=psycopg2._psycopg --hidden-import=pymysql --hidden-import=mysql.connector --hidden-import=sqlalchemy.dialects.postgresql --hidden-import=sqlalchemy.dialects.mysql --hidden-import=sqlalchemy.dialects.sqlite --hidden-import=importlib.resources --hidden-import=pkg_resources
-
           REM First build in --onedir for easier debugging of missing data/plugins
-          pyinstaller --noconfirm --onedir --windowed --name "CatAIDBViewer" %HIDDEN% --add-data "src\\ui;ui" src\app.py
+          pyinstaller --noconfirm --onedir --windowed --name "CatAIDBViewer" --hidden-import=psycopg2 --hidden-import=psycopg2._psycopg --hidden-import=pymysql --hidden-import=mysql.connector --hidden-import=sqlalchemy.dialects.postgresql --hidden-import=sqlalchemy.dialects.mysql --hidden-import=sqlalchemy.dialects.sqlite --hidden-import=importlib.resources --hidden-import=pkg_resources --add-data "src\\ui;ui" src\app.py
 
           REM Then build the single-file executable for release
-          pyinstaller --noconfirm --onefile --windowed --name "CatAIDBViewer" %HIDDEN% --add-data "src\\ui;ui" src\app.py
+          pyinstaller --noconfirm --onefile --windowed --name "CatAIDBViewer" --hidden-import=psycopg2 --hidden-import=psycopg2._psycopg --hidden-import=pymysql --hidden-import=mysql.connector --hidden-import=sqlalchemy.dialects.postgresql --hidden-import=sqlalchemy.dialects.mysql --hidden-import=sqlalchemy.dialects.sqlite --hidden-import=importlib.resources --hidden-import=pkg_resources --add-data "src\\ui;ui" src\app.py
 
       - name: List dist directory
         run: |
