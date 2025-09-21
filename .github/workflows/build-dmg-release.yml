@@ -31,7 +31,7 @@ jobs:
 
       - name: Build with PyInstaller (onedir then onefile)
         run: |
-          pyinstaller --exclude-module PyQt5 --noconfirm --onefile --windowed --name "CatAIDBViewer" --add-data "src\\ui;ui" src\app.py 
+          pyinstaller --exclude-module PyQt5 --noconfirm --onefile --windowed --name "CatAIDBViewer" --add-data "src\\ui:ui" src\app.py 
 
       - name: Create .app bundle
         run: |
